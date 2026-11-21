@@ -1,13 +1,85 @@
 const { categoryModel } = require("../../models/categoryModel")
 const { subcategoryModel } = require("../../models/subcategoryModel")
+let streamifier = require("streamifier")
+let cloudinary = require("../../config/cloudinary")
+
+
+
+let UploadCloudinary = (fileBuffer) => {
+    return new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+            {
+                folder: "subcategories",
+                resource_type: "image"
+
+            },
+            (error, result) => {
+                if (error) {
+                    return reject(error)
+                }
+                resolve(result);
+
+            }
+        );
+        streamifier.createReadStream(fileBuffer)
+            .pipe(uploadStream);
+    })
+}
+// let subcategoryCreate = async (req, res) => {
+
+
+//     try {
+//                 console.log("File received:", req.file);
+
+//         let insertObj = { ...req.body };
+
+//         console.log("Subcategory File:", req.file);
+
+//         if (req.file) {
+//             // console.log("hello Hemlata",req.file)
+//             const uploadResult = await UploadCloudinary(req.file.buffer);
+
+//             insertObj.subcategoryImage = uploadResult.secure_url;
+//         }
+
+//         let subcategoryRes = await subcategoryModel.create(insertObj);
+
+//         res.send({
+//             status: 1,
+//             msg: "Subcategory added successfully",
+//             subcategoryRes
+//         });
+
+//     }
+//     catch (err) {
+
+//         console.log("Subcategory creation error:", err);
+
+//         let errorMessage = "Server Error";
+
+//         if (err.code === 11000) {
+//             errorMessage = "Subcategory already exists";
+//         }
+
+//         if (err.name === "ValidationError") {
+//             errorMessage = "Check field values";
+//         }
+
+//         res.status(400).send({
+//             status: 0,
+//             msg: "Subcategory not added",
+//             errorMessage
+//         });
+//     }
+// };
+
 let subcategoryCreate = async (req, res) => {
     // console.log(req.body)
     // console.log(req.file)
     let insertObj = { ...req.body }
     if (req.file) {
-        if (req.file.filename) {
-            insertObj['subcategoryImage'] = req.file.filename
-        }
+       let uploadResult= await UploadCloudinary(req.file.buffer)
+       insertObj.subcategoryImage=uploadResult.secure_url;
     }
     // res.send(insertObj)
     try {
@@ -61,7 +133,7 @@ let subcategoryView = async (req, res) => {
     let obj = {
         status: 1,
         msg: "subcategory view",
-        staticPath: process.env.SUBCATEGORYIMAGEPTAH,
+        staticPath: process.env.SUBCATEGORYIMAGEPATH,
         subcategoryCollection,
         length: subcategorylength.length,
         totalpages: Math.ceil(subcategorylength.length / limit)//math.ceil ka work number ko complete krna 
@@ -71,8 +143,8 @@ let subcategoryView = async (req, res) => {
 }
 let parentCategory = async (req, res) => {
     let categoryData = await categoryModel.
-    find({ categoryStatus: true })
-    .select("categoryName")
+        find({ categoryStatus: true })
+        .select("categoryName")
     obj = {
         status: 1,
         categoryData
@@ -103,21 +175,25 @@ let subcategorydelete = async (req, res) => {
         })
 }
 let subcategoryUpdate = async (req, res) => {
-     let insertObj = req.body
+    let insertObj = req.body
+
     if (req.file) {
-        if (req.file.filename) {
-            insertObj.subcategoryImage = req.file.filename
-        }
+
+        const uploadResult = await UploadCloudinary(req.file.buffer);
+
+        insertObj.subcategoryImage = uploadResult.secure_url;
     }
+
+
     let { id } = req.params;
-    
+
     try {
         let subcategoryRes = await subcategoryModel.updateOne(
             {
                 _id: id
             },
             {
-                $set:insertObj
+                $set: insertObj
             }
         )
         obj = {
