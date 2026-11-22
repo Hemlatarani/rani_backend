@@ -74,8 +74,8 @@ let UploadCloudinary = (fileBuffer) => {
 // };
 
 let subcategoryCreate = async (req, res) => {
-    // console.log(req.body)
-    // console.log(req.file)
+    console.log("File:", req.file);
+console.log("Buffer:", req.file?.buffer);
     let insertObj = { ...req.body }
     if (req.file) {
        let uploadResult= await UploadCloudinary(req.file.buffer)
