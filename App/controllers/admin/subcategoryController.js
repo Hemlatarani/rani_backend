@@ -25,94 +25,81 @@ let UploadCloudinary = (fileBuffer) => {
             .pipe(uploadStream);
     })
 }
+let subcategoryCreate = async (req, res) => {
+    try {
+        console.log("REQ FILE:", req.file);
+        console.log("REQ BODY:", req.body);
+
+        let insertObj = { ...req.body };
+
+        // Image milegi tabhi Cloudinary par upload hogi
+        if (req.file) {
+            let uploadResult = await UploadCloudinary(req.file.buffer);
+            insertObj.subcategoryImage = uploadResult.secure_url;
+        }
+
+        let subcategoryRes = await subcategoryModel.create(insertObj);
+
+        return res.status(201).send({
+            status: 1,
+            msg: "Subcategory added successfully",
+            subcategoryRes
+        });
+
+    } catch (err) {
+        console.log("SUBCATEGORY ERROR:", err);
+
+        return res.status(500).send({
+            status: 0,
+            msg: "Subcategory not added",
+            error: err.message
+        });
+    }
+};
+
 // let subcategoryCreate = async (req, res) => {
 
+//     console.log("REQ FILE:", req.file);
+//     console.log("REQ BODY:", req.body);
+//     console.log("IMAGE BUFFER:", req.file?.buffer);
 
+//     let insertObj = { ...req.body }
+//     if (req.file) {
+//         let uploadResult = await UploadCloudinary(req.file.buffer)
+//         insertObj.subcategoryImage = uploadResult.secure_url;
+//     }
+//     // res.send(insertObj)
 //     try {
-//                 console.log("File received:", req.file);
-
-//         let insertObj = { ...req.body };
-
-//         console.log("Subcategory File:", req.file);
-
-//         if (req.file) {
-//             // console.log("hello Hemlata",req.file)
-//             const uploadResult = await UploadCloudinary(req.file.buffer);
-
-//             insertObj.subcategoryImage = uploadResult.secure_url;
-//         }
-
-//         let subcategoryRes = await subcategoryModel.create(insertObj);
-
-//         res.send({
+//         let subcategoryCollection = await subcategoryModel(insertObj)
+//         let subcategoryRes = await subcategoryCollection.save()
+//         // data insert save and insert dono se hoga
+//         obj = {
 //             status: 1,
-//             msg: "Subcategory added successfully",
+//             msg: "subcategory add",
 //             subcategoryRes
-//         });
-
+//         }
+//         res.send(obj)
 //     }
 //     catch (err) {
-
-//         console.log("Subcategory creation error:", err);
-
-//         let errorMessage = "Server Error";
-
-//         if (err.code === 11000) {
-//             errorMessage = "Subcategory already exists";
+//         let errorMessage
+//         if (err.code == 11000) {
+//             errorMessage = "subcategory already exists";
+//         }
+//         if (err.errors) {
+//             if (err.errors.subcategoryName) {
+//                 errorMessage = err.errors.subcategoryName.message;
+//             }
 //         }
 
-//         if (err.name === "ValidationError") {
-//             errorMessage = "Check field values";
-//         }
-
-//         res.status(400).send({
+//         obj = {
 //             status: 0,
-//             msg: "Subcategory not added",
+//             msg: "subcategory not added",
 //             errorMessage
-//         });
+//         }
+//         res.send(obj)
 //     }
-// };
 
-let subcategoryCreate = async (req, res) => {
-    console.log("File:", req.file);
-console.log("Buffer:", req.file?.buffer);
-    let insertObj = { ...req.body }
-    if (req.file) {
-       let uploadResult= await UploadCloudinary(req.file.buffer)
-       insertObj.subcategoryImage=uploadResult.secure_url;
-    }
-    // res.send(insertObj)
-    try {
-        let subcategoryCollection = await subcategoryModel(insertObj)
-        let subcategoryRes = await subcategoryCollection.save()
-        // data insert save and insert dono se hoga
-        obj = {
-            status: 1,
-            msg: "subcategory add",
-            subcategoryRes
-        }
-        res.send(obj)
-    }
-    catch (err) {
-        let errorMessage
-        if (err.code == 11000) {
-            errorMessage = "subcategory already exists";
-        }
-        if (err.errors) {
-            if (err.errors.subcategoryName) {
-                errorMessage = err.errors.subcategoryName.message;
-            }
-        }
-
-        obj = {
-            status: 0,
-            msg: "subcategory not added",
-            errorMessage
-        }
-        res.send(obj)
-    }
-
-}
+// }
 
 let subcategoryView = async (req, res) => {
     let skip = 0
