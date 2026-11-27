@@ -3,7 +3,7 @@ const { subcategoryModel } = require("../../models/subcategoryModel")
 const { subsubcategoryModel } = require("../../models/subsubcategoryModel")
 let streamifier=require("streamifier")
 const cloudinary=require("../../config/cloudinary")
-// let mongoose = require("mongoose")
+let mongoose = require("mongoose")
 
 
 let UploadCloudinary=(filebuffer)=>{
