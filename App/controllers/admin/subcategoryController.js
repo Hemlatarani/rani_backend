@@ -16,7 +16,7 @@ let UploadCloudinary = (fileBuffer) => {
             (error, result) => {
                 if (error) {
                     return reject(error)
-                }
+                } 
                 resolve(result);
 
             }
